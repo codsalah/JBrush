@@ -50,12 +50,12 @@ public class PainterFrame extends JFrame {
 
         // Add color buttons to panel
         for (Color c : defaultColors) {
-            JButton cBtn = createColorButton(c, canvas);
+            JButton cBtn = createColorButton(c, null, canvas);
             colorPanel.add(cBtn);
         }
 
         // Color palette button
-        JButton colorPaletteBtn = new JButton("...");
+        JButton colorPaletteBtn = createColorButton(Color.WHITE, "...", canvas);
         colorPaletteBtn.setToolTipText("Color Palette");
         colorPaletteBtn.addActionListener(e -> {
             Color c = JColorChooser.showDialog(this, "Select Color", canvas.getCurrentColor());
@@ -99,7 +99,7 @@ public class PainterFrame extends JFrame {
         JPanel topToolbar = new JPanel();
         topToolbar.setLayout(new BoxLayout(topToolbar, BoxLayout.Y_AXIS));
 
-        // Row one include (Files, Tools, and Options)
+        // Row one: Files, Tools, Options, Utility
         JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         row1.add(new JLabel("Files:"));
         row1.add(openBtn);
@@ -110,11 +110,20 @@ public class PainterFrame extends JFrame {
         row1.add(rectBtn);
         row1.add(ovalBtn);
         row1.add(handBtn);
+
+        row1.add(new JLabel("   Options:"));
+        JCheckBox dashedCheck = new JCheckBox("Dashed");
+        JCheckBox filledCheck = new JCheckBox("Filled");
+        dashedCheck.addActionListener(e -> canvas.setDashed(dashedCheck.isSelected()));
+        filledCheck.addActionListener(e -> canvas.setFilled(filledCheck.isSelected()));
+        row1.add(dashedCheck);
+        row1.add(filledCheck);
+
         row1.add(new JLabel("   "));
         row1.add(undoBtn);
         row1.add(clearBtn);
 
-        // Row two include (Colors and Size)
+        // Row two: Colors, Size, View
         JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         row2.add(new JLabel("Colors:"));
         row2.add(colorPanel);
@@ -122,32 +131,20 @@ public class PainterFrame extends JFrame {
         row2.add(sizeLabel);
         row2.add(sizeSlider);
 
-        // Row three include (Options and View)
-        JPanel row3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JCheckBox dashedCheck = new JCheckBox("Dashed");
-        JCheckBox filledCheck = new JCheckBox("Filled");
-        // set action listeners to change the dashed and filled flags
-        dashedCheck.addActionListener(e -> canvas.setDashed(dashedCheck.isSelected()));
-        filledCheck.addActionListener(e -> canvas.setFilled(filledCheck.isSelected()));
-
-        row3.add(new JLabel("Options:"));
-        row3.add(dashedCheck);
-        row3.add(filledCheck);
-        row3.add(new JLabel("   View:"));
-        row3.add(zoomOutBtn);
-        row3.add(zoomResetBtn);
-        row3.add(zoomInBtn);
-        row3.add(zoomDisplay);
-        row3.add(new JLabel("   (Use CTRL + MouseWheel to zoom in/out)"));
+        row2.add(new JLabel("   View:"));
+        row2.add(zoomOutBtn);
+        row2.add(zoomResetBtn);
+        row2.add(zoomInBtn);
+        row2.add(zoomDisplay);
+        row2.add(new JLabel("   (Use CTRL + MouseWheel to zoom)"));
 
         topToolbar.add(row1);
         topToolbar.add(row2);
-        topToolbar.add(row3);
 
         // Frame layout
         setLayout(new BorderLayout());
         add(topToolbar, BorderLayout.NORTH);
-        add(canvas, BorderLayout.CENTER); // Start with the canvas in the center
+        add(canvas, BorderLayout.CENTER);
 
         setSize(1400, 950);
         setLocationRelativeTo(null);
@@ -155,16 +152,46 @@ public class PainterFrame extends JFrame {
         setVisible(true);
     }
 
-    // Create color button and add it to the color panel
-    private JButton createColorButton(Color color, Painter canvas) {
-        JButton btn = new JButton();
-        btn.setBackground(color);
+    // Create circular button
+    private JButton createColorButton(Color color, String text, Painter canvas) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (getModel().isArmed()) {
+                    g2.setColor(color.darker());
+                } else {
+                    g2.setColor(color);
+                }
+                g2.fillOval(2, 2, getWidth() - 5, getHeight() - 5);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+
+            @Override
+            protected void paintBorder(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.LIGHT_GRAY);
+                g2.drawOval(2, 2, getWidth() - 5, getHeight() - 5);
+                g2.dispose();
+            }
+
+            @Override
+            public boolean contains(int x, int y) {
+                double radius = getWidth() / 2.0;
+                return Math.pow(x - radius, 2) + Math.pow(y - radius, 2) <= Math.pow(radius, 2);
+            }
+        };
         btn.setPreferredSize(new Dimension(30, 30));
-        btn.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         btn.setContentAreaFilled(false);
-        btn.setOpaque(true);
-        // set action listener to change the current color
-        btn.addActionListener(e -> canvas.setCurrentColor(color));
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(false);
+        if (text == null || text.isEmpty()) {
+            btn.addActionListener(e -> canvas.setCurrentColor(color));
+        }
         return btn;
     }
 
