@@ -8,11 +8,14 @@ public abstract class Shape {
     protected boolean dashed = false;
     protected boolean filled = false;
 
+    protected int strokeSize = 3;
+
     // Constructor
-    public Shape(int x, int y, Color color) {
+    public Shape(int x, int y, Color color, int strokeSize) {
         this.x = x;
         this.y = y;
         this.color = color;
+        this.strokeSize = strokeSize;
     }
 
     // Accessors
@@ -25,21 +28,20 @@ public abstract class Shape {
     }
 
     // Abstract Method
-    public abstract void draw(Graphics2D g2) ;
+    public abstract void draw(Graphics2D g2);
 
     // Using Stroke interface and return object based on the dashed flag
     protected Stroke makeStroke() {
         if (dashed) {
             return new BasicStroke(
-                    3f,
+                    (float) strokeSize,
                     BasicStroke.CAP_ROUND,
                     BasicStroke.JOIN_ROUND,
                     10f,
-                    new float[]{10f, 10f},
-                    0f
-            );
+                    new float[] { 10f, 10f },
+                    0f);
         }
 
-        return new BasicStroke(3f);
+        return new BasicStroke((float) strokeSize);
     }
 }
