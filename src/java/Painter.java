@@ -16,8 +16,16 @@ public class Painter extends JPanel implements NavigateHand.NavigableView {
     public static final int RECT = 3;
     public static final int OVAL = 4;
     public static final int HAND = 5;
+    public static final int TEXT = 6;
 
     private int tool = BRUSH;
+
+    // Text fields
+    private String textFontFamily = "Arial";
+    private int textFontSize = 18;
+    private int textFontStyle = Font.PLAIN;
+    private JTextField textEditor = null;
+    private int textX, textY;
 
     private Color currentColor = Color.BLACK;
     private boolean dashed = false;
@@ -52,6 +60,8 @@ public class Painter extends JPanel implements NavigateHand.NavigableView {
 
     public Painter() {
         setBackground(new Color(50, 50, 50)); // Dark background for the area outside fixed workspace
+        setLayout(null); //allows absolute positioning of JTextField
+        setFocusable(true);
         navigateHand = new NavigateHand(this);
         setPreferredSize(new Dimension(sheetWidth, sheetHeight));
 
@@ -94,6 +104,12 @@ public class Painter extends JPanel implements NavigateHand.NavigableView {
                     currentPath = new PathShape(cx, cy, c, getDynamicStrokeSize());
                     currentPath.setDashed(dashed);
                     shapes.add(currentPath);
+                }
+
+                // TEXT tool: click once to place text
+                if (tool == TEXT) {
+                    startTextEditor(cx, cy);
+                    return;
                 }
             }
 
@@ -196,6 +212,73 @@ public class Painter extends JPanel implements NavigateHand.NavigableView {
         return o;
     }
 
+    private void startTextEditor(int x, int y) {
+        // remove previous editor if exists
+        if (textEditor != null) {
+            remove(textEditor);
+            textEditor = null;
+        }
+
+        textX = x;
+        textY = y;
+
+        textEditor = new JTextField(20);
+        textEditor.setFont(new Font(textFontFamily, textFontStyle, textFontSize));
+        textEditor.setForeground(currentColor);
+
+        // JTextField uses top-left, drawString uses baseline -> shift up a bit
+        int fieldW = 300;
+        int fieldH = textFontSize + 12;
+        textEditor.setBounds(textX, textY - textFontSize, fieldW, fieldH);
+
+        // Enter = commit
+        textEditor.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                commitTextEditor();
+            }
+        });
+
+        // Click outside = commit
+        textEditor.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                commitTextEditor();
+            }
+        });
+
+        add(textEditor);
+        textEditor.requestFocusInWindow();
+        repaint();
+    }
+
+    private void commitTextEditor() {
+        if (textEditor == null) return;
+
+        String text = textEditor.getText();
+
+        remove(textEditor);
+        textEditor = null;
+
+        if (text != null && !text.trim().isEmpty()) {
+            int dStroke = getDynamicStrokeSize();
+
+            TextShape t = new TextShape(
+                    textX, textY,
+                    currentColor, dStroke,
+                    text,
+                    textFontFamily, textFontSize, textFontStyle
+            );
+
+            shapes.add(t);
+            
+            canUndoClear = false;
+        }
+
+        repaint();
+    }
+
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -266,6 +349,9 @@ public class Painter extends JPanel implements NavigateHand.NavigableView {
     // Setters
     public void setTool(int tool) {
         this.tool = tool;
+        if (textEditor != null) {
+            commitTextEditor(); // save what the user typed
+        }
         previewShape = null;
         navigateHand.setEnabled(tool == HAND);
     }
@@ -296,6 +382,18 @@ public class Painter extends JPanel implements NavigateHand.NavigableView {
 
     public void setStrokeSize(int size) {
         this.baseStrokeSize = size;
+    }
+
+    public void setTextFontFamily(String family) {
+        this.textFontFamily = family;
+    }
+
+    public void setTextFontSize(int size) {
+        this.textFontSize = size;
+    }
+
+    public void setTextFontStyle(int style) {
+        this.textFontStyle = style;
     }
 
     // Undo the last shape or clear

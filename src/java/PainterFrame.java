@@ -16,6 +16,7 @@ public class PainterFrame extends JFrame {
         JButton lineBtn = new JButton("Line");
         JButton rectBtn = new JButton("Rectangle");
         JButton ovalBtn = new JButton("Oval");
+        JButton textBtn = new JButton("Text");
 
         // Set tool on button click (Lambda expression)
         brushBtn.addActionListener(e -> canvas.setTool(Painter.BRUSH));
@@ -23,6 +24,7 @@ public class PainterFrame extends JFrame {
         lineBtn.addActionListener(e -> canvas.setTool(Painter.LINE));
         rectBtn.addActionListener(e -> canvas.setTool(Painter.RECT));
         ovalBtn.addActionListener(e -> canvas.setTool(Painter.OVAL));
+        textBtn.addActionListener(e -> canvas.setTool(Painter.TEXT));
 
         // hand tool
         JButton handBtn = new JButton("Hand");
@@ -78,6 +80,35 @@ public class PainterFrame extends JFrame {
             sizeLabel.setText("Stroke: " + val);
         });
 
+        // Font family chooser
+        String[] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+
+        JComboBox<String> fontBox = new JComboBox<>(fontFamilies);
+        fontBox.setSelectedItem("Arial");
+        fontBox.setPreferredSize(new Dimension(180, 25));
+        fontBox.addActionListener(e -> {
+            String family = (String) fontBox.getSelectedItem();
+            canvas.setTextFontFamily(family);
+        });
+
+        // Font size control
+        JSpinner fontSizeSpinner = new JSpinner(new SpinnerNumberModel(18, 8, 200, 1));
+        fontSizeSpinner.addChangeListener(e -> {
+            int size = (int) fontSizeSpinner.getValue();
+            canvas.setTextFontSize(size);
+        });
+
+        // Font style chooser
+        String[] styles = {"Plain", "Bold", "Italic"};
+        JComboBox<String> styleBox = new JComboBox<>(styles);
+        styleBox.setSelectedItem("Plain");
+        styleBox.addActionListener(e -> {
+            String s = (String) styleBox.getSelectedItem();
+            if (s.equals("Bold")) canvas.setTextFontStyle(Font.BOLD);
+            else if (s.equals("Italic")) canvas.setTextFontStyle(Font.ITALIC);
+            else canvas.setTextFontStyle(Font.PLAIN);
+        });
+
         // Zoom controls
         JButton zoomInBtn = new JButton("+");
         JButton zoomOutBtn = new JButton("-");
@@ -111,9 +142,10 @@ public class PainterFrame extends JFrame {
         row1.add(new JLabel("   Tools:"));
         row1.add(brushBtn);
         row1.add(eraserBtn);
-        row1.add(rectBtn);
         row1.add(lineBtn);
+        row1.add(rectBtn);
         row1.add(ovalBtn);
+        row1.add(textBtn);
         row1.add(handBtn);
 
         row1.add(new JLabel("   Options:"));
@@ -135,6 +167,13 @@ public class PainterFrame extends JFrame {
         row2.add(new JLabel("   Size:"));
         row2.add(sizeLabel);
         row2.add(sizeSlider);
+
+        row2.add(new JLabel("   Font:"));
+        row2.add(fontBox);
+        row2.add(new JLabel("Size:"));
+        row2.add(fontSizeSpinner);
+        row2.add(new JLabel("Style:"));
+        row2.add(styleBox);
 
         row2.add(new JLabel("   View:"));
         row2.add(zoomOutBtn);
