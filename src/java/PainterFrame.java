@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 
 public class PainterFrame extends JFrame {
@@ -48,10 +50,12 @@ public class PainterFrame extends JFrame {
         Color[] defaultColors = { Color.BLACK, Color.GRAY, Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN,
                 Color.BLUE, Color.MAGENTA, Color.PINK };
 
+        List<JButton> colorButtons = new ArrayList<>();
         // Add color buttons to panel
         for (Color c : defaultColors) {
             JButton cBtn = createColorButton(c, null, canvas);
             colorPanel.add(cBtn);
+            colorButtons.add(cBtn);
         }
 
         // Color palette button
@@ -150,6 +154,11 @@ public class PainterFrame extends JFrame {
         setSize(1400, 950);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // Setup keyboard shortcuts with visual feedback
+        ShortcutManager.setup(getRootPane(), openBtn, saveBtn, brushBtn, eraserBtn, rectBtn, ovalBtn, handBtn,
+                dashedCheck, filledCheck, undoBtn, clearBtn, colorButtons, colorPaletteBtn);
+        
         setVisible(true);
     }
 
