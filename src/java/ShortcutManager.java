@@ -10,6 +10,7 @@ public class ShortcutManager {
             JButton saveBtn,
             JButton brushBtn,
             JButton eraserBtn,
+            JButton lineBtn,
             JButton rectBtn,
             JButton ovalBtn,
             JButton textBtn,
@@ -36,6 +37,7 @@ public class ShortcutManager {
         // Tools
         bindKey(im, am, KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, "brush", brushBtn);
         bindKey(im, am, KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, "eraser", eraserBtn);
+        bindKey(im, am, KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, "line", lineBtn);
         bindKey(im, am, KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, "rect", rectBtn);
         bindKey(im, am, KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, "oval", ovalBtn);
         bindKey(im, am, KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, "text", textBtn);
