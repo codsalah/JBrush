@@ -123,6 +123,11 @@ public class Painter extends JPanel implements NavigateHand.NavigableView {
                     navigateHand.mouseDragged(e);
                     return;
                 }
+
+                if (tool == TEXT) {
+                    return;
+                }
+                
                 // Convert mouse coords to canvas coords and clamp them to the sheet size
                 int cx = clamp(toCanvasX(e.getX()), sheetWidth);
                 int cy = clamp(toCanvasY(e.getY()), sheetHeight);
@@ -229,13 +234,20 @@ public class Painter extends JPanel implements NavigateHand.NavigableView {
         textY = y;
 
         textEditor = new JTextField(20);
-        textEditor.setFont(new Font(textFontFamily, textFontStyle, textFontSize));
+        // Scale the font size according to zoom for visual consistency
+        int scaledFontSize = (int) (textFontSize * zoomScale);
+        textEditor.setFont(new Font(textFontFamily, textFontStyle, scaledFontSize));
         textEditor.setForeground(currentColor);
 
+        // Convert canvas coordinates to screen coordinates
+        // Apply zoom and offset transformations
+        int screenX = (int) (textX * zoomScale + offsetX);
+        int screenY = (int) (textY * zoomScale + offsetY);
+        
         // JTextField uses top-left, drawString uses baseline -> shift up a bit
-        int fieldW = 300;
-        int fieldH = textFontSize + 12;
-        textEditor.setBounds(textX, textY - textFontSize, fieldW, fieldH);
+        int fieldW = (int) (300 * zoomScale);
+        int fieldH = scaledFontSize + 12;
+        textEditor.setBounds(screenX, screenY - scaledFontSize, fieldW, fieldH);
 
         // Enter = commit
         textEditor.addActionListener(new ActionListener() {
