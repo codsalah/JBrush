@@ -1,6 +1,9 @@
 # PainterJava - Java Swing Painter Application
 A desktop drawing application built with **Java Swing**, providing an intuitive canvas for creating digital artwork with various drawing tools, shapes, and styling options.
 
+<img width="2558" height="1438" alt="monalisa" src="https://github.com/user-attachments/assets/9f34d874-4f6b-496a-bab7-281339b8b2c1" />
+
+
 ## Project Overview
 
 **PainterJava** (JPainter) is a cross-platform painting application that enables users to create drawings with multiple tools. 
